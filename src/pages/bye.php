@@ -1,0 +1,3 @@
+<?php
+
+$request->setContent("Bye");
