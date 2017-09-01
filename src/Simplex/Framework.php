@@ -11,15 +11,18 @@ use Symfony\Component\HttpKernel;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class Framework
 {
     protected $matcher;
     protected $controllerResolver;
     protected $argumentResolver;
+    protected $dispatcher;
 
-    public function __construct(UrlMatcherInterface $matcher, ControllerResolverInterface $controllerResolver, ArgumentResolverInterface $argumentResolver)
+    public function __construct(EventDispatcherInterface $dispatcher, UrlMatcherInterface $matcher, ControllerResolverInterface $controllerResolver, ArgumentResolverInterface $argumentResolver)
     {
+        $this->dispatcher = $dispatcher;
         $this->matcher = $matcher;
         $this->controllerResolver = $controllerResolver;
         $this->argumentResolver = $argumentResolver;
@@ -41,6 +44,8 @@ class Framework
         } catch(\Exception $e) {
             $response = new Response($e->getMessage(), 500);
         }
+
+        $this->dispatcher->dispatch('response', new ResponseEvent($request, $response));
         return $response;
     }
 }
