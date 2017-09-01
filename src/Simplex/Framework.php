@@ -5,11 +5,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\HttpKernel;
-use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class Framework
 {
@@ -17,7 +18,7 @@ class Framework
     protected $controllerResolver;
     protected $argumentResolver;
 
-    public function __construct(UrlMatcher $matcher, ControllerResolver $controllerResolver, ArgumentResolver $argumentResolver)
+    public function __construct(UrlMatcherInterface $matcher, ControllerResolverInterface $controllerResolver, ArgumentResolverInterface $argumentResolver)
     {
         $this->matcher = $matcher;
         $this->controllerResolver = $controllerResolver;
@@ -35,8 +36,8 @@ class Framework
             $arguments = $this->argumentResolver->getArguments($request, $controller); 
 
             $response = call_user_func_array($controller, $arguments);
-        } catch (\Routing\Exception\ResourceNotFoundException $e) {
-            $response = new Response("Not Found:" . $path, 404);
+        } catch (ResourceNotFoundException $e) {
+            $response = new Response("Not Found:" . $e->getMessage(), 404);
         } catch(\Exception $e) {
             $response = new Response($e->getMessage(), 500);
         }
