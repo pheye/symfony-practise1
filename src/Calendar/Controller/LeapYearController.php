@@ -10,9 +10,10 @@ class LeapYearController {
     public function indexAction(Request $request, $year) {
         $leapYear = new LeapYear();
         if ($leapYear->isLeapYear($year)) {
-            return "Yes, this is a leap year" . rand();
+            $str = "Yes, this is a leap year" . rand();
         } else {
-            return "No, this is not a leap year" . rand();
+            $str = "No, this is not a leap year" . rand();
         }
+        return new Response($str);
     }
 }
